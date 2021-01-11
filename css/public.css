@@ -1,0 +1,22 @@
+html,body{width:100%;height:100%;}
+#container{min-height: 100%;position: relative;height:auto !important;}
+header{height:59px;border-bottom: 1px solid #ddd;background: #f7f7f7;}
+header .logo{cursor: pointer;height: 59px;line-height: 59px;margin-left: 20px;}
+.user-info{margin-right: 20px;}
+.user-info a{text-decoration: none;color:#000;}
+.user-info .user-name{height:59px;line-height: 50px;}
+.content{display:flex;}
+.grid-left{flex:none;float:left;border-right:1px solid #ddd;width:160px;}
+.grid-right{flex:1;float:right;overflow-x:hidden;overflow-y: auto;}
+footer{
+	position: absolute;
+	bottom:0px;
+	height:79px;
+	border-top:1px solid #ddd;
+	width:100%;
+	background: #f7f7f7;
+}
+.sub-foot{width:1000px;margin:0 auto;text-align: center;}
+.sub-foot ul{}
+.sub-foot li{display:inline-block;height:30px;line-height:30px;}
+.sub-foot p{height:30px;line-height: 30px;}
