@@ -1,210 +1,349 @@
 <!DOCTYPE html>
-<html lang="en">
+<html  xmlns="http://www.w3.org/1999/xhtml"  xml:lang="en"  lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>天气预报</title>
-    <script src="./js/vue.js"></script>
-    <script src="./js/axios.js"></script>
-    <link rel="stylesheet" href="./bootstrap/css/bootstrap.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
-</head>
-<body>
-    <div id="app">
-        <div class="container">
-            <nav class="navbar navbar-default">
-                <div class="container-fluid">
-                    <!-- Brand and toggle get grouped for better mobile display -->
-                    <div class="navbar-header">
-                        <a class="navbar-brand" href="#">启迪数字学院</a>
-                    </div>
-
-                    <!-- Collect the nav links, forms, and other content for toggling -->
-                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                        <ul class="nav navbar-nav">
-                            <li @click="qihuanfun(true)"><a href="#">天气预报 <span class="sr-only">(current)</span></a></li>
-                            <li @click="qihuanfun(false)"><a href="#">菜谱</a></li>
-                        </ul>
-                    </div><!-- /.navbar-collapse -->
-                </div><!-- /.container-fluid -->
-            </nav>
-<!--            天气预报，当hidden==true的时候显示-->
-           <div v-if="hidden">
-               <div  class="jumu">
-                   <div class="jumbotron">
-                       <h1>天气预报查询</h1>
-                       <p>这是查询天气预报的一个页面，由同学们自己完成</p>
-                   </div>
-               </div>
-               <div class="result">
-                   <table class="table table-bordered">
-                       <tr>
-                           <td>日期</td>
-                           <td>风向</td>
-                           <td>最高温度</td>
-                           <td>最低温度</td>
-                           <td>天气</td>
-                       </tr>
-                       <tr v-for="(item,index) in list">
-                           <td>{{ item.date }}</td>
-                           <td>{{ item.day.winddirect }}</td>
-                           <td>{{ item.day.temphigh }}</td>
-                           <td>{{ item.night.templow }}</td>
-                           <td><img width="40" :src="'./icon/' + item.day.img + '.png'" alt=""></td>
-                       </tr>
-                   </table>
-               </div>
-               <div class="chaxun">
-                请选择你的省份:
-                <select name="" id="" v-model="pro">
-                    <option v-for="(item,index) in arr" >{{ index }}</option>
-                </select>
-                请选择你的城市
-                <select name="" v-model="city" >
-                    <option value="item" v-for="(item,index) in arr[pro]">
-                        {{ item }}
-                    </option>
-                </select>
-                   <form action="">
-                       <div class="form-group">
-                           <label for="cityname">输入城市</label>
-                           <input type="text" class="form-control" v-model="city" id="cityname" placeholder="柳州">
-                       </div>
-<!--                       submit在外部有form的时候，会执行自己的默认事件，提交表单-->
-                       <button type="button" @click="getWeather" class="btn btn-info">查询</button>
-                   </form>
-               </div>
-           </div>
-<!--            菜谱，当hidden==false的时候显示-->
-
-            <div v-if="!hidden">
-                <div  class="jumu">
-                    <div class="jumbotron">
-                        <h1>菜谱大全</h1>
-                        <p>一天一个窜稀小技巧，让你成为刑部尚书</p>
-                    </div>
-                </div>
-                <div class="chaxun">
-                    
-                    <div class="form-group">
-                        <label for="keyword">输入关键字</label>
-                        <input type="text" class="form-control" v-model="keyword" id="keyword" placeholder="白菜">
-                    </div>
-                    <div class="form-group">
-                        <label for="num">输入数量</label>
-                        <input type="text" class="form-control" v-model="num" id="num" placeholder="0">
-                    </div>
-                    <button type="submit" @click="caipu" class="btn btn-info">查询</button>
-                </div>
-                <div class="result" v-for="(item,index) in list2" style="border-bottom:1px solid gray;margin-top:15px">
-                    <div class="media">
-                        <div class="media-left">
-                            <a href="#">
-                                <img class="media-object" src="item.pic" alt="...">
-                            </a>
-                        </div>
-                        <div class="media-body">
-                            <h4 class="media-heading">{{item.name}}</h4>
-                            {{item.content}}
-                        </div>
-                    </div>
-                    <table class="table" style="margin-top:15px;">
-                        <tr>
-                            <td v-for="(items,indexs) in item.material">
-                                {{ items.mname }} <br> {{ items.amount }}
-                            </td>
-                        </tr>
-                    </table>
-                    <div class="row">
-                        <div class="col-md-4" v-for="(items,indexs) in item.process">
-                            <div class="thumbnail" style="height:240px;overflow:hidden;">
-                                <img :src="items.pic" style="width:200px;height:150px;" alt="...">
-                                <div class="caption">
-                                    <p style="height:60px;overflow-y: scroll">{{ items.pcontent }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-               
-            </div>
-        </div>
-    </div>
-</body>
-</html>
-<script>
-    /*
-    *   接口:/getweather
-    *
-    *   type:get
-    *
-    *   参数:city=城市名称
-    *
-    * */
-    new Vue({
-        el:'#app',
-        data:{
-            city:'',
-            list:null,
-
-            hidden:true,
-            keyword:'',
-            num:0,
-            list2:[],
-            arr:{
-                '广西':[
-                    '桂林',
-                    '柳州',
-                    '南宁',
-                    '北海',
-                    '百色',
-                ],
-                '云南':[
-                    '曲靖',
-                    '昆明',
-                    '大理',
-                    '丽江',
-                    '西双版纳',
-                ],
-
-            },
-            pro:'广西',
-            city:''
-        },
-        methods:{
-            getWeather:function(){
-                let _this = this;
-                axios.get('http://localhost:3000/getweather?city=' +  this.city).then(function (response) {
-                    console.log(response.data.result.daily);
-                    _this.list = response.data.result.daily
-                });
-
-            },
-            qihuanfun:function(bool){
-                this.hidden = bool;
-            },
-            caipu:function(){
-                let _this = this;
-                axios.get('http://localhost:3000/getcaipu?keyword='+ this.keyword +'&num=' +  this.num).then(function (response) {
-                    console.log(response.data.result.list);
-                    _this.list2 = response.data.result.list
-                })
+<title>浟佳好资源 YO 福利 </title>		
+<meta name="keywords" content=",浟佳好资源 YO 福利">
+<meta name="description" content="  浟佳好资源 YO 福利 ">
+<meta name="author" content="www.">	
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" href="./恋爱记录网站/css/reset.css" type="text/css" media="all">
+  <link rel="shortcut icon" href="index//images/favicon.ico">
+  <link rel="stylesheet" href="./恋爱记录网站/css/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
+  <link rel="stylesheet" href="./恋爱记录网站/css/style.css" type="text/css" media="all">
+  <link href="css/prettyPhoto.css" rel="stylesheet" />
+  <script type="text/javascript" src="./恋爱记录网站/js/jquery.min.js" ></script>
+  <script type="text/javascript" src="./恋爱记录网站/js/content_switch.js"></script>
+  <script type="text/javascript" src="./恋爱记录网站/js/jquery.easing.1.3.js"></script>
+  <script type="text/javascript" src="./恋爱记录网站/js/jquery.mousewheel.js"></script>
+  <script type="text/javascript" src="./恋爱记录网站/js/jquery-ui.js"></script>
+  <script type="text/javascript" src="./恋爱记录网站/js/cScroll.js"></script>
+  <script src="js/jquery.cycle.all.latest.js" type="text/javascript"></script>
+  <script src="js/jquery.color.js" type="text/javascript"></script>
+  <script type="text/javascript" src="./恋爱记录网站/js/script.js"></script>
+  <script type="text/javascript" src="./恋爱记录网站/js/functions.js"></script>
+  <script src="js/prettyPhoto.js"></script>
+  <!--[if lt IE 9]>
+  	<script type="text/javascript" src="./js/html5.js"></script>
+    <link rel="stylesheet" href="./css/ie.css" type="text/css" media="all">
+  <![endif]-->
+	<!--[if lt IE 8]>
+		<div style=' clear: both; text-align:center; position: relative;'>
+			<a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0000_us.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." /></a>
+		</div>
+	<![endif]-->
+	<body onpaste="return false" ondragstart="return false" onmouseover="window.status='';return true" oncopy="return false;">
+	<frameset> <frame src="index.html"> </frameset>
+<script> 
+function stop(){ 
+alert('宝贝，我爱你！');
+return false; 
+} 
+document.oncontextmenu=stop; 
+</script>
+<body onselectstart="return false" onpaste="return false" oncopy="return false;" 
+oncut="return false;" >
+</a>
+    <script>
+	
+        function checkhtml5()
+        {
+            if ($.browser.msie  && parseInt($.browser.version, 10) < 9) {
+                document.body.innerHTML="<div style=' clear: both; text-align:center; position: relative; height: 50px; margin-top: 30px; padding: 20px; background-color: red; color: white; font-size:20px;'>你的浏览器非常落后，不支持 HTML5!<br/>请使用 Chrome 14+/IE 9+/Firefox 7+/Safari 4+ 其中任意一款浏览器访问此页面。</a></div>";
 
             }
-        },
-        beforeMount:function(){
-            let _this = this;
-            axios.get('http://localhost:3000/getip?ip=' +  returnCitySN.cip).then(function (response) {
-                console.log(response.data.result.city);
-                axios.get('http://localhost:3000/getweather?city=' +  response.data.result.city).then(function (res) {
-                    console.log(res.data.result.daily);
-                    _this.list = res.data.result.daily
-                })
-            })
         }
-    })
+    </script>
+    <style>
+        a.wb_sina {
+            float:left;
+            margin-top:20px;
+            margin-left:15px;
+            display:inline-block;
+            padding:4px 10px;
+            border-radius:3px;
+            background-color:#e55345;
+            background-image:-moz-linear-gradient(top,#e96249,#e03c40);
+            background-image:-ms-linear-gradient(top,#e96249,#e03c40);
+            background-image:-webkit-gradient(linear,0 0,0 100%,from(#e96249),to(#e03c40));
+            background-image:-webkit-linear-gradient(top,#e96249,#e03c40);
+            background-image:-o-linear-gradient(top,#e96249,#e03c40);
+            background-image:linear-gradient(top,#e96249,#e03c40);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#e96249',endColorstr='#e03c40',GradientType=0);
+            background-repeat:repeat-x;
+            text-shadow:0 -1px 0 rgba(0,0,0,.5);
+            border:1px solid #cf2b28;
+            color:#fff!important;
+            box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 1px 0 rgba(0,0,0,.2);
+        }
+        a.wb_sina:hover {
+            background-image:-moz-linear-gradient(top,#e03c40,#e96249);
+            background-image:-ms-linear-gradient(top,#e03c40,#e96249);
+            background-image:-webkit-gradient(linear,0 0,0 100%,from(#e03c40),to(#e96249));
+            background-image:-webkit-linear-gradient(top,#e03c40,#e96249);
+            background-image:-o-linear-gradient(top,#e03c40,#e96249);
+            background-image:linear-gradient(top,#e03c40,#e96249);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#e03c40',endColorstr='#e96249',GradientType=0);
+        }
+        a.wb_sina span {
+            display:inline-block;
+            vertical-align:-5px;
+            margin-right:7px;
+            height:20px;
+            width:24px;
+            background:url(./images/weibo.png) no-repeat;
+        }
+        a.wb_tencent {
+            float:left;
+            margin-top:20px;
+            margin-left:15px;
+            display:inline-block;
+            padding:4px 10px;
+            border-radius:3px;
+            background-color:#0e7fcc;
+            background-image:-moz-linear-gradient(top,#1288d4,#0771c1);
+            background-image:-ms-linear-gradient(top,#1288d4,#0771c1);
+            background-image:-webkit-gradient(linear,0 0,0 100%,from(#1288d4),to(#0771c1));
+            background-image:-webkit-linear-gradient(top,#1288d4,#0771c1);
+            background-image:-o-linear-gradient(top,#1288d4,#0771c1);
+            background-image:linear-gradient(top,#1288d4,#0771c1);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#1288d4',endColorstr='#0771c1',GradientType=0);
+            background-repeat:repeat-x;
+            text-shadow:0 -1px 0 rgba(0,0,0,.5);
+            border:1px solid #0D6EB8;
+            color:#fff!important;
+            box-shadow:0 1px 0 rgba(255,255,255,.2) inset,0 1px 0 rgba(0,0,0,.2);
+        }
+        a.wb_tencent:hover {
+            background-color:#0e7fcc;
+            background-image:-moz-linear-gradient(top,#0771c1,#1288d4);
+            background-image:-ms-linear-gradient(top,#0771c1,#1288d4);
+            background-image:-webkit-gradient(linear,0 0,0 100%,from(#0771c1),to(#1288d4));
+            background-image:-webkit-linear-gradient(top,#0771c1,#1288d4);
+            background-image:-o-linear-gradient(top,#0771c1,#1288d4);
+            background-image:linear-gradient(top,#0771c1,#1288d4);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#0771c1',endColorstr='#1288d4',GradientType=0);
+        }
+        a.wb_tencent span {
+            display:inline-block;
+            vertical-align:-5px;
+            margin-right:7px;
+            height:20px;
+            width:24px;
+            background:url(./images/weibo.png) no-repeat 0 -20px;
+        }
+        #abox
+        {
+            position: fixed;
+            _position: absolute;
+            right: 15px;
+            z-index: 99999999;
+        }
+    </style>
+</head>
+
+<body onLoad="checkhtml5()">
+<div id="abox">
+</div>
+<div class="page_spinner">
+    <div></div>
+</div>
+<div class="over">
+	<div class="centre">
+		<div class="main">
+			<!--header -->
+	  <header>
+				<h1><span id="logo"><img src="images/logo1.png" alt="" usemap="#logo"></span></h1>
+				<nav class="menu">
+					<ul id="menu">
+						<li id="nav1"><img src="images/nav1.png" alt=""><span>爱的宣誓</span></li>
+						<li id="nav2"><img src="images/nav2.png" alt=""><span>恋爱历程</span>						</li>
+						<li id="nav3"><img src="images/nav3.png" alt=""><span>絮叨絮叨</span></li>
+						<li id="nav4"><img src="images/nav4.png" alt=""><span>祝福我们</span></li>
+						<li id="nav5"><img src="images/nav5.png" alt=""><span>爱的映像</span></li>
+						<li id="nav6"><img src="images/nav6.png" alt=""><span>时光沙漏</span></li>
+					</ul>
+				</nav>
+				<img src="images/spacer.gif" alt="" id="navigation" usemap="#navigation">
+				<map name="navigation" class="navigation">
+	    </map>
+				<map name="logo" class="map_logo"></map>
+			</header>
+			<!--header end-->
+			<!--content -->
+			<map name="back" class="map_back"></map>
+			<article id="content">
+				<ul>
+					<li id="page_Home">
+						<img src="images/bg_content.png" alt="" class="bg_cont">
+						<span class="back"><img src="images/nav1.png" alt="" usemap="#back"><a href="index.html#close">返回</a></span>
+						<div class="pad">
+							<h2>爱的宣誓</h2>
+                            人物：浟佳 &amp; 宝贝<br />
+                            不在乎曾经拥有，只在乎天长地久。<br />
+                            爱，就要说出来！<br />
+                            再美好的回忆，也只是回忆；<br />
+                            再美丽的诺言，不到实现的那一刻，也只是一句空话。<br/>
+                              -- 来自 浟佳好资源  www.ayoujia.com						</div>
+					</li>
+					<li id="page_About">
+						<img src="images/bg_content.png" alt="" class="bg_cont">
+						<span class="back"><img src="images/nav2.png" alt="" usemap="#back"><a href="index.html#close">返回</a></span>
+						<div class="pad">
+							<h2>恋爱历程</h2>
+							<div class="relative">
+								<div class="scroll">
+                                    <span>人物：浟佳 &amp; 宝贝</span>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;宝贝你还记得么？</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;XX年X月X日。</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;我们在xx相遇。</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;然后.........</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;过程.........</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;我爱你，我会一直陪在你身边</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp;不离不弃</p>
+                                    <p>&nbsp;&nbsp;&nbsp;&nbsp; -  浟佳好资源</p>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li id="page_Talk">
+						<img src="images/bg_content.png" alt="" class="bg_cont">
+						<span class="back"><img src="images/nav3.png" alt="" usemap="#back"><a href="index.html#close">返回</a></span>
+						<div class="pad">
+							<h2>絮叨絮叨</h2>
+                            <div class="relative">
+                                <div class="scroll">
+                                    <div style="width:100%;float: left; border-bottom: 1px solid #CCCCCC;">浟佳<br/><span style="float: right"> --by 浟佳好资源 2015-2-7</span></div>
 
 
+
+                                    <div style="width:100%;float: left">分享我所知道的<br/><span style="float: right"> --by 浟佳, www.ayoujia.com</span></div>
+                                </div>
+                            </div>
+						</div>
+					</li>
+					<li id="page_Message">
+						<img src="images/bg_content.png" alt="" class="bg_cont">
+						<span class="back"><img src="images/nav4.png" alt="" usemap="#back"><a href="index.html#close">返回</a></span>
+						<div class="pad">
+							<h2>祝福我们</h2>
+                            <div class="relative">
+                                <div class="scroll">
+
+                                    <div style="min-height: 300px; padding-bottom: 50px;">
+<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="yyu" data-title="bb" data-url="http://"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript"> var duoshuoQuery = {short_name:"love90"}; (function() { var ds = document.createElement('script'); ds.type = 'text/javascript';ds.async = true; ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '/static.duoshuo.com/embed.js'; ds.charset = 'UTF-8'; (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds); })(); </script>
+<!-- 多说公共JS代码 end -->
+                                    </div>
+                                </div>
+                            </div>
+						</div>
+					</li>
+					<li id="page_Blog">
+						<img src="images/bg_content.png" alt="" class="bg_cont">
+						<span class="back"><img src="images/nav5.png" alt="" usemap="#back"><a href="index.html#close">返回</a></span>
+						<div class="pad">
+							<h2>爱的映像</h2>
+							<div class="relative">
+								<div class="scroll">
+									<ul class="gallery fancybox">
+                                        <li style="line-height:120px"><a href="images/uploadimage/imglsh001.jpg" rel="prettyPhoto[gallery1]"><img src="images/uploadimage/imglsh001small.jpg" alt=""></a></li>
+                                        <li style="line-height:120px"><a href="images/uploadimage/imglsh002.jpg" rel="prettyPhoto[gallery1]"><img src="images/uploadimage/imglsh002small.jpg" alt=""></a></li>
+                                        <li style="line-height:120px"><a href="images/uploadimage/img003.jpg" rel="prettyPhoto[gallery1]"><img src="images/uploadimage/img003small.jpg" alt=""></a></li>
+                                        <li style="line-height:120px"><a href="images/uploadimage/imglsh001.jpg" rel="prettyPhoto[gallery1]"><img src="images/uploadimage/imglsh001small.jpg" alt=""></a></li>
+                                        <li style="line-height:120px"><a href="images/uploadimage/imglsh002.jpg" rel="prettyPhoto[gallery1]"><img src="images/uploadimage/imglsh002small.jpg" alt=""></a></li>
+                                        <li style="line-height:120px"><a href="images/uploadimage/img003.jpg" rel="prettyPhoto[gallery1]"><img src="images/uploadimage/img003small.jpg" alt=""></a></li>
+                                        <li style="line-height:120px"><a href="images/uploadimage/img004.jpg" rel="prettyPhoto[gallery1]"><img src="images/uploadimage/img004small.jpg" alt=""></a></li>
+                                        <li style="line-height:120px"><a href="images/uploadimage/imglsh002.jpg" rel="prettyPhoto[gallery1]"><img src="images/uploadimage/imglsh002small.jpg" alt=""></a></li>
+                                        <li style="line-height:120px"><a href="images/uploadimage/img003.jpg" rel="prettyPhoto[gallery1]"><img src="images/uploadimage/img003small.jpg" alt=""></a></li>
+                                        <li style="line-height:120px"><a href="images/uploadimage/img004.jpg" rel="prettyPhoto[gallery1]"><img src="images/uploadimage/img004small.jpg" alt=""></a></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li id="page_Time">
+						<img src="images/bg_content.png" alt="" class="bg_cont">
+						<span class="back"><img src="images/nav6.png" alt="" usemap="#back"><a href="index.html#close">返回</a></span>
+						<div class="pad">
+<h2>时光沙漏</h2>
+                            <div id="loveHeart" style="margin-top: 30px;font-size: 25px;">
+                                        <span style="">宝贝你知道我爱你爱了多久了吗？</span>
+                                        <div id="elapseClock" style="margin: 10px 0px 10px 0px;"></div>
+                                <img src="images/1.gif" />　　　　<img src="images/2.gif" /><br/><br/>
+                                    <div id="loveu">
+                                        爱：从2014-2-6开始！<br/>
+                                        <div class="signature" style="float: right; margin-right: 50px;">by 浟佳 </div>
+                                    </div>
+                          </div>
+                      </div>
+				  </div>
+					</li>
+					
+					
+				</ul>
+			</article>
+			<!--content end-->
+  </div>
+</div>
+	<div class="bg1">	
+		<div class="main">
+			<!--footer -->
+			<footer style="line-height:20px">
+                <div id="copyright">
+                    Copyright © 2015  Power by <a href="" target=_blank>浟佳</a> & <a 
+href="http://www.17sucai.com/" target=_blank>网页模板</a> All Rights Reserved. <script 
+ language="JavaScript"></script>
+
+
+
+                </object>
+                </div>
+				<!-- {%FOOTER_LINK} -->
+			</footer>
+			<!--footer end-->
+		</div>
+	</div>
+</div>
+<script>
+$(window).load(function() {	
+	$('.page_spinner').fadeOut();
+	$('body').css({overflow:'visible'});
+	
+})
 </script>
 
+<script type="text/javascript">//修改时光沙漏时间
+    var offsetX = $("#loveHeart").width() / 2;
+    var offsetY = $("#loveHeart").height() / 2 - 55;
+    var together = new Date();
+    together.setFullYear(2014, 02, 06);
+    together.setHours(17);
+    together.setMinutes(0);
+    together.setSeconds(0);
+    together.setMilliseconds(0);
 
+        setTimeout(function () {
+            adjustWordsPosition();
+            startHeartAnimation();
+        }, 3000);
+
+        timeElapse(together);
+        setInterval(function () {
+            timeElapse(together);
+        }, 500);
+
+        adjustCodePosition();
+        $("#code").typewriter();
+</script>
+    <audio id="bgmMusic" src="http://www.51mp3ring.com/51mp3ring_com2/at200611121582079026.mp3" preload="auto" type="audio/mp3" autoplay loop></audio>
+
+<!--coded by koma-->
+
+<!--LIVEDEMO_00 -->
+</div>
+
+</body>
+</html>
