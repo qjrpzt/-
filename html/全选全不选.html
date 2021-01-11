@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        form{
+            text-align: center;
+            line-height: 120px;
+            width: 500px;
+            height: 360px;
+            font-size: 20px;
+            margin: 200px auto;
+            border: 2px solid hotpink;
+        }
+        input{
+           
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <form method="POST" action="">
+        今天吃点啥<input type="checkbox" id="checkAllbox" >全选/全不选
+        <br />
+        <input type="checkbox" name="item" value="牛肉" />牛肉
+        <input type="checkbox" name="item" value="羊肉" />羊肉
+        <input type="checkbox" name="item" value="猪肉" />猪肉
+        <input type="checkbox" name="item" value="驴肉" />驴肉
+
+        <br />
+        <input type="button" id="checkALL" value="全选" />
+        <input type="button" id="checkALLno" value="全不选" />
+        <input type="button" id="checkRev" value="反选" />
+        <input type="button" id="send" value="提交" />
+
+    </form>
+</body>
+</html>
+<script>
+    var items = document.getElementsByName('item');
+    
+    //点击全选
+    checkALL.onclick = function(){
+        for(i=0; i<items.length; i++){
+            items[i].checked = true;
+        }
+        
+        //使全选/全不选同步
+        checkAllbox.checked = true;
+    }
+     
+     //点击全不选
+     checkALLno.onclick = function(){
+        for(i=0; i<items.length; i++){
+            items[i].checked = false;
+        }
+
+        //使全选/全不选同步
+        checkAllbox.checked = false;
+    }
+
+    
+     //点击反选
+     checkRev.onclick = function(){
+        checkAllbox.checked = true;
+        for(i=0; i<items.length; i++){
+            
+            //第一种方法 判断
+            // if(items[i].checked){
+            //     items[i].checked = false;
+            // }else{
+            //     items[i].checked = true;
+            // }
+            items[i].checked = !items[i].checked;
+
+    
+                   if(!items[i].checked){
+
+            
+                       checkAllbox.checked = false; 
+               
+           }
+      }
+
+
+        //反选时判断四个多选框是否全部选中
+    }
+
+    //提交按钮
+    send.onclick = function(){
+        for(i=0; i<items.length; i++){
+            if(items[i].checked){
+                alert(items[i].value);
+            }
+            
+        }
+    }
+
+     //全选/全不选 
+     checkAllbox.onclick = function(){
+        for(i=0; i<items.length; i++){
+            items[i].checked = this.checked;
+        }
+    }
+
+      for(i=0; i<items.length; i++){
+           items[i].onclick = function(){
+
+            checkAllbox.checked = true;
+
+               for(var j=0; j<items.length; j++){
+                   if(!items[j].checked){
+
+                    //一旦进入判断就不用继续执行
+                       checkAllbox.checked = false;
+
+                       break;
+                   }
+               }
+           }
+      }
+</script>
